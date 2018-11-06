@@ -1,3 +1,9 @@
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS questions;
+DROP TABLE IF EXISTS question_follows;
+DROP TABLE IF EXISTS replies;
+DROP TABLE IF EXISTS questions_likes;
+
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE users (
@@ -29,7 +35,7 @@ CREATE TABLE question_follows (
 CREATE TABLE replies (
   id INTEGER PRIMARY KEY,
   question_id INTEGER NOT NULL,  --will reference questions table using questions_id
-  parent_reply TEXT, --type replies.id
+  parent_reply INTEGER, --type replies.id
   author_id INTEGER NOT NULL, -- reference users.id
   body TEXT NOT NULL
 );
@@ -68,10 +74,13 @@ VALUES
 INSERT INTO
   replies(question_id, parent_reply, author_id, body)
 VALUES
-  ((SELECT id FROM questions WHERE title = 'Question1'), NULL, (SELECT id FROM users WHERE fname = 'Christine'), "I think they are water."),
+  ((SELECT id FROM questions WHERE title = 'Question1'), NULL, (SELECT id FROM users WHERE fname = 'Christine'), "I think they are water.");
+
+INSERT INTO
+  replies(question_id, parent_reply, author_id, body)
+VALUES
   ((SELECT id FROM questions WHERE title = 'Question1'), (SELECT id FROM replies WHERE body = "I think they are water."), 
 (SELECT id FROM users WHERE fname = 'Bob'), "I think so too!");
-
 
 INSERT INTO
   questions_likes (question_id, user_id)

@@ -14,7 +14,7 @@ end
 # =============================================================================================
 
 class Question
-  attr_accessor :title, :body, :author
+  attr_accessor :title, :body, :author_id
   attr_reader :id
   
   def self.all 
@@ -54,9 +54,16 @@ class Question
     @id = options['id']
     @title = options['title']
     @body = options['body']
-    @author = options['author']
+    @author_id = options['author_id']
   end
   
+  def author
+    User.find_by_id(self.author_id)
+  end
+  
+  def replies
+    Reply.find_by_question_id(self.id)
+  end
   
 end
 # =============================================================================================
@@ -103,6 +110,16 @@ class User
     @fname = options['fname']
     @lname = options['lname']
   end
+  
+  def authored_questions
+    Question.find_by_author_id(self.id)  
+  end
+  
+  def authored_replies
+    Reply.find_by_user_id(self.id)
+  end
+  
+  
   
   
 end
@@ -175,7 +192,7 @@ end
           author_id = ?  
       SQL
       
-      return nil if reply.length > 0
+      return nil unless reply.lengh > 0
       reply.map { |reply| Reply.new(reply)}
     end
     
@@ -189,7 +206,7 @@ end
           question_id = ?
       SQL
       
-      return nil if reply.length > 0
+      return nil unless reply.length > 0
       reply.map { |reply| Reply.new(reply) }
     end
     
@@ -201,6 +218,19 @@ end
       @body = options['body']
     end
   
+    def author
+      User.find_by_id(self.author_id)
+    end
+    
+    def question
+      Question.find_by_id(self.question_id)
+    end
+    
+    def parent_reply
+      Reply.find_by_id(self.parent_reply)
+    end
+    
+    
   
 end
 # =============================================================================================
