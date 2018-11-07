@@ -50,6 +50,10 @@ class Question
     question.map { |question| Question.new(question) }
   end
   
+  def self.most_followed(n)
+    QuestionFollow.most_followed_questions(1)
+  end
+  
   def initialize(options)
     @id = options['id']
     @title = options['title']
@@ -68,6 +72,7 @@ class Question
   def followers
     QuestionFollow.followers_for_question_id(self.id)
   end
+  
 end
 # =============================================================================================
 
@@ -322,6 +327,38 @@ class QuestionLikes
     
     return nil unless question_likes.length > 0
     QuestionLikes.new(question_likes.first)
+  end
+  
+  def self.likers_for_question_id(question_id)
+      users = QuestionsDatabaseConnection.instance.execute(<<-SQL, question_id)
+        SELECT
+          *
+        FROM
+          users
+        JOIN 
+          questions_likes ON questions_likes.user_id = users.id
+        JOIN 
+          questions ON questions.id = questions_likes.question_id
+        WHERE
+          questions.id = ?
+      SQL
+      return nil unless users.length > 0
+      users.map{|user| User.new(user)}
+  end
+  
+  def self.num_likes_for_question_id(question_id)
+    num_likes = QuestionsDatabaseConnection.instance.execute(<<-SQL, question_id)
+      SELECT
+        COUNT(*)
+      FROM
+        questions_likes
+      WHERE
+        questions_likes.question_id = ?
+      GROUP BY
+        questions_likes.question_id
+
+    SQL
+     num_likes.first.values[0]
   end
   
   def initialize(options)
