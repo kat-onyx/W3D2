@@ -60,7 +60,10 @@ INSERT INTO --title body author
   questions(title, body, author_id)
 VALUES
   ('Question1', 'What are clouds?', (SELECT id FROM users WHERE fname = 'Kat')),
-  ('Question2', 'What are cats?', (SELECT id FROM users WHERE fname = 'Christine'));
+  ('Question2', 'What are cats?', (SELECT id FROM users WHERE fname = 'Christine')),
+  ('Question3', 'What is your favorite color?', (SELECT id FROM users WHERE fname = 'Bob')),
+  ('Question4', 'Why make your bed?', (SELECT id FROM users WHERE fname = 'Dave')),
+  ('Question5', 'ninjas or pirates?', (SELECT id FROM users WHERE fname = 'Christine'));
   
   
 INSERT INTO
@@ -68,7 +71,10 @@ INSERT INTO
 VALUES
   ((SELECT id FROM users WHERE fname = 'Christine'), (SELECT id FROM questions WHERE title = 'Question1')),
   ((SELECT id FROM users WHERE fname = 'Dave'), (SELECT id FROM questions WHERE title = 'Question1')),
-  ((SELECT id FROM users WHERE fname = 'Bob'), (SELECT id FROM questions WHERE title = 'Question1'));
+  ((SELECT id FROM users WHERE fname = 'Bob'), (SELECT id FROM questions WHERE title = 'Question2')),
+  ((SELECT id FROM users WHERE fname = 'Jane'), (SELECT id FROM questions WHERE title = 'Question5')),
+  ((SELECT id FROM users WHERE fname = 'Dave'), (SELECT id FROM questions WHERE title = 'Question5')),
+  ((SELECT id FROM users WHERE fname = 'Kat'), (SELECT id FROM questions WHERE title = 'Question5'));
   
   
 INSERT INTO

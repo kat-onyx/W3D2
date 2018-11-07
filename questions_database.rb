@@ -65,6 +65,9 @@ class Question
     Reply.find_by_question_id(self.id)
   end
   
+  def followers
+    QuestionFollow.followers_for_question_id(self.id)
+  end
 end
 # =============================================================================================
 
@@ -119,7 +122,9 @@ class User
     Reply.find_by_user_id(self.id)
   end
   
-  
+  def followed_questions
+    QuestionFollow.followed_questions_for_user_id(self.id)
+  end
   
   
 end
@@ -150,11 +155,66 @@ class QuestionFollow
     QuestionFollow.new(question.first)
   end
   
+  def self.followers_for_question_id(question_id)
+    user = QuestionsDatabaseConnection.instance.execute(<<-SQL, question_id)
+      SELECT 
+        *
+      FROM 
+        users
+      JOIN question_follows 
+        ON question_follows.follower_id = users.id 
+      JOIN questions 
+        ON questions.id = question_follows.question_id
+      WHERE 
+        question_id = ?
+    SQL
+    
+    return nil unless user.length > 0
+    user.map { |user| User.new(user) }
+  end
+  
+  def self.followed_questions_for_user_id(user_id)
+    question = QuestionsDatabaseConnection.instance.execute(<<-SQL, user_id)
+      SELECT 
+        *
+      FROM 
+        questions
+      JOIN question_follows 
+        ON question_follows.question_id = questions.id
+      JOIN users
+        ON users.id = question_follows.follower_id
+      WHERE 
+        follower_id = ?
+    SQL
+    
+    return nil unless question.length > 0
+    question.map { |question| Question.new(question) }
+  end
+  
+  def self.most_followed_questions(n)
+    most_followed = QuestionsDatabaseConnection.instance.execute(<<-SQL, n)
+      SELECT 
+        *
+      FROM 
+        questions
+      JOIN question_follows
+        ON question_follows.question_id = questions.id
+      GROUP BY question_id
+      ORDER BY COUNT(*) DESC
+      LIMIT ?
+    SQL
+    
+    return nil unless most_followed.length > 0
+    most_followed.map { |followed| Question.new(followed) }
+  end
+  
   def initialize(options)
     @id = options['id']
     @follower_id = options['follower_id']
     @question_id = options['question_id']
   end
+  
+
 end
   # =============================================================================================
 
@@ -268,8 +328,8 @@ class QuestionLikes
     @id = options['id']
     @question_id = options['question_id']
     @user_id = options['user_id']
-
   end
-
+  
+  
 
 end
